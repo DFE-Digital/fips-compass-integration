@@ -151,6 +151,11 @@ app.MapControllerRoute(
     defaults: new { controller = "Contact", action = "Index" });
 
 app.MapControllerRoute(
+    name: "about",
+    pattern: "about",
+    defaults: new { controller = "About", action = "Index" });
+
+app.MapControllerRoute(
     name: "data",
     pattern: "data",
     defaults: new { controller = "Data", action = "Index" });

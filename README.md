@@ -80,6 +80,7 @@ Further behaviour is described in [docs/spec.md](docs/spec.md).
 | `/Categories` | Taxonomy groups |
 | `/categories/user-group/{id}` | User group |
 | `/contact` | Contact |
+| `/about` | About this product |
 | `/data` | How to export or use the Service Register data |
 | `/cookies` | Cookie preferences |
 | `/Account/SignIn` | Entra sign-in |

@@ -1,0 +1,90 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">About this product</h1>
+        <p class="govuk-body-l">Find information about products and services is a read-only catalogue of Department for Education products and services. It shows what exists, who to contact, and how each product or service is categorised.</p>
+        <p class="govuk-body">This site does not store its own copy of the register and it has no content management system. Every list and product page is read from COMPASS.</p>
+
+        <h2 class="govuk-heading-l">Who it is for</h2>
+        <p class="govuk-body">Staff use it to find an existing product or service before starting new work, to see who owns it, and to understand the channels, types, business areas, and user groups it covers.</p>
+        <p class="govuk-body">Product managers and service owners use it to check how their entry is presented. Changes are made in COMPASS, not in this site.</p>
+        <p class="govuk-body">Technical architects use it as the public view of the COMPASS Service Register. The same register can be taken as a spreadsheet or called as an API from COMPASS.</p>
+
+        <h2 class="govuk-heading-l">Where the data comes from</h2>
+        <p class="govuk-body">COMPASS is the system this product integrates with. The site calls the COMPASS Service Register API and shows the response. It does not call ServiceNow itself.</p>
+        <p class="govuk-body">New products and services are created as service offerings in ServiceNow. Those records are what COMPASS holds in the Service Register, and what this site then displays.</p>
+        <h3 class="govuk-heading-m">What the site reads</h3>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>Active products and services on the standard register. Enterprise services are not included in that list.</li>
+            <li>One product or service, by its numeric id or its COMPASS id.</li>
+            <li>The FIPS taxonomy: channels, types, business areas, user groups, contact roles, and categorisation groups.</li>
+        </ul>
+        <p class="govuk-body">Search, categories, channels, types, business areas, and user groups are sent to COMPASS as filters. Phase is applied in this site after the products have been loaded, because phase is not a filter on that API.</p>
+        <p class="govuk-body">Successful reads are kept in memory on the web server for a short time, about two minutes by default. A change in COMPASS can take that long to appear here. Each running instance has its own cache.</p>
+
+        <h2 class="govuk-heading-l">What you can do here</h2>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>Search and filter the register of products and services.</li>
+            <li>Open one entry to see its description, phase, contacts, and categories.</li>
+            <li>Browse the taxonomy and see which products sit in a group or user group.</li>
+            <li>Follow a link from an entry to manage that information in COMPASS.</li>
+        </ul>
+        <p class="govuk-body">The product list shows 25 entries at a time. The site asks COMPASS for the matching active products, then pages that result.</p>
+
+        <h2 class="govuk-heading-l">Getting the data another way</h2>
+        <p class="govuk-body">This website does not produce the spreadsheet and it does not issue API tokens. Both of those are in COMPASS.</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>
+                <a class="govuk-link" href="https://compass.education.gov.uk/modern/manage/fips/dashboard" rel="noopener noreferrer" target="_blank">Excel export of all products and services<span class="govuk-visually-hidden"> (opens in a new tab)</span></a>
+                on the COMPASS dashboard.
+            </li>
+            <li>
+                <a class="govuk-link" href="https://compass.education.gov.uk/docs/api" rel="noopener noreferrer" target="_blank">Service Register API<span class="govuk-visually-hidden"> (opens in a new tab)</span></a>,
+                which you can set up yourself from the COMPASS developer docs.
+            </li>
+        </ul>
+        <p class="govuk-body">There is a shorter version of this on the <a class="govuk-link" href="@Url.Action("Index", "Data")">Data</a> page.</p>
+
+        <h2 class="govuk-heading-l">How information is updated</h2>
+        <p class="govuk-body">This site is read-only. It cannot create, edit, or retire an entry.</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>To correct an existing entry, use the link on that product page to open it in COMPASS.</li>
+            <li>To add a product or service that is missing, create a new service offering in ServiceNow. It then appears in COMPASS, and from there in this catalogue.</li>
+        </ul>
+
+        <h2 class="govuk-heading-l">What this product does not do</h2>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>It does not edit the register.</li>
+            <li>It does not include the old CMS pages, assessments, or feedback forms.</li>
+            <li>It does not replace COMPASS. COMPASS remains the place to manage an entry and to take a full export or API feed.</li>
+        </ul>
+
+        <h2 class="govuk-heading-l">How the parts fit together</h2>
+        <table class="govuk-table">
+            <caption class="govuk-table__caption govuk-table__caption--m">Systems this product uses</caption>
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">System</th>
+                    <th scope="col" class="govuk-table__header">Role</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">This website</th>
+                    <td class="govuk-table__cell">Signed-in catalogue. Reads COMPASS and presents the register.</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">Microsoft Entra</th>
+                    <td class="govuk-table__cell">Signs the person in before any page is shown.</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">COMPASS Service Register</th>
+                    <td class="govuk-table__cell">Source of products, services, contacts, and taxonomy. Also the place to manage an entry, export Excel, and use the API.</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">ServiceNow</th>
+                    <td class="govuk-table__cell">Where a missing product or service is created as a service offering. This website does not call ServiceNow.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
