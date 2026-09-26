@@ -1,7 +1,19 @@
 using System.Threading.RateLimiting;
 using Fips.Infrastructure;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Azure App Service terminates TLS and forwards the original scheme.
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 if (builder.Environment.IsDevelopment())
 {
@@ -13,6 +25,17 @@ if (builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddFipsInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddRateLimiter(options =>
@@ -31,6 +54,8 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
@@ -56,17 +81,19 @@ app.Use(async (context, next) =>
         "style-src 'self' 'unsafe-inline' https://rsms.me; " +
         "font-src 'self' data: https://rsms.me; " +
         "img-src 'self' data: https://*.googletagmanager.com https://*.google-analytics.com https://*.google.com https://c.bing.com https://*.clarity.ms; " +
-        "connect-src 'self' https://*.googletagmanager.com https://*.google-analytics.com https://*.google.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com; " +
-        "frame-src https://*.googletagmanager.com; " +
+        "connect-src 'self' https://*.googletagmanager.com https://*.google-analytics.com https://*.google.com https://www.clarity.ms https://*.clarity.ms https://c.bing.com https://login.microsoftonline.com; " +
+        "frame-src https://*.googletagmanager.com https://login.microsoftonline.com; " +
         "frame-ancestors 'none'; " +
         "base-uri 'self'; " +
-        "form-action 'self'; " +
+        "form-action 'self' https://login.microsoftonline.com; " +
         "object-src 'none'";
     await next();
 });
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapControllerRoute(
