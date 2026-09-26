@@ -1,6 +1,6 @@
 # FIPS catalogue (COMPASS)
 
-Public catalogue for Department for Education products and services. Product, service, and category data comes from the COMPASS Service Register API. There is no CMS.
+Catalogue for Department for Education products and services. Every page requires Entra sign-in, using the same Azure AD app registration as the existing FIPS web app. Product, service, and category data comes from the COMPASS Service Register API. There is no CMS.
 
 ## Solution
 

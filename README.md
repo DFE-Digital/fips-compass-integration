@@ -1,6 +1,6 @@
 # FIPS catalogue (COMPASS)
 
-Public catalogue of Department for Education products and services. Product, service, and category data is read from the COMPASS Service Register API. There is no CMS.
+Catalogue of Department for Education products and services. Every page requires a Department for Education Entra sign-in. Product, service, and category data is read from the COMPASS Service Register API. There is no CMS.
 
 Licensed under the [MIT Licence](LICENCE).
 
@@ -16,10 +16,23 @@ code-digital-ops/
 ```
 
 - A COMPASS API token with `read` on the `ServiceRegister` resource
+- The existing FIPS Entra app registration. This site uses the same `AzureAd` tenant, client id, and client secret as the current FIPS web app
 
 ## Configuration
 
-App settings files are gitignored. Do not commit API tokens.
+App settings files are gitignored. Do not commit API tokens or the Entra client secret.
+
+`AzureAd` is read from `src/Fips.Web/appsettings.json` (and from Azure App Service settings, which override the file). It uses the same values as the existing FIPS frontend:
+
+| Setting | Purpose |
+| --- | --- |
+| `AzureAd:Instance` | `https://login.microsoftonline.com/` |
+| `AzureAd:TenantId` | Entra tenant |
+| `AzureAd:ClientId` | Application (client) id |
+| `AzureAd:ClientSecret` | Client secret for the web app |
+| `AzureAd:CallbackPath` | `/signin-oidc` |
+
+The app registration must include `https://<this-site>/signin-oidc` as a redirect URI. Publishing onto the existing FIPS web app keeps that URI.
 
 Set the COMPASS base URL and token with user secrets:
 
@@ -68,3 +81,7 @@ Further behaviour is described in [docs/spec.md](docs/spec.md).
 | `/categories/user-group/{id}` | User group |
 | `/contact` | Contact |
 | `/cookies` | Cookie preferences |
+| `/Account/SignIn` | Entra sign-in |
+| `/Account/SignOut` | Entra sign-out |
+
+Every other page requires a signed-in user. Sign-in and the signed-out page are the only anonymous views.
