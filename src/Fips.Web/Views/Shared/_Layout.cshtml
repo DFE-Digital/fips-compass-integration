@@ -2,6 +2,7 @@
     var navSection = ViewData["NavSection"] as string ?? "";
     var isProductsNav = navSection == "products";
     var isCategoriesNav = navSection == "categories";
+    var isDataNav = navSection == "data";
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var isHomeProduct = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
@@ -73,6 +74,18 @@
                             else
                             {
                                 <a class="govuk-service-navigation__link" href="@Url.Action("Index", "Categories")">Categories</a>
+                            }
+                        </li>
+                        <li class="govuk-service-navigation__item @(isDataNav ? "govuk-service-navigation__item--active" : null)">
+                            @if (isDataNav)
+                            {
+                                <a class="govuk-service-navigation__link" href="@Url.Action("Index", "Data")" aria-current="true">
+                                    <strong class="govuk-service-navigation__active-fallback">Data</strong>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="govuk-service-navigation__link" href="@Url.Action("Index", "Data")">Data</a>
                             }
                         </li>
                     </ul>
