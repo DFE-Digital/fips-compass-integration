@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fips.Data/Fips.Data.csproj" />
+    <Project Path="src/Fips.Infrastructure/Fips.Infrastructure.csproj" />
+    <Project Path="src/Fips.Services/Fips.Services.csproj" />
+    <Project Path="src/Fips.Web/Fips.Web.csproj" />
+  </Folder>
+  <Project Path="../FIPS/dfe-frontend/packages/dfe-frontend-aspnetcore/Dfe.Frontend.AspNetCore.csproj" />
+</Solution>

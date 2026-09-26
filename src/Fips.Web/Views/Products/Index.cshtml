@@ -1,0 +1,359 @@
+@model ProductListViewModel
+@section Head {
+    <link rel="stylesheet" href="~/css/products-filter.css" asp-append-version="true" />
+}
+
+@{
+    ViewData["Title"] = Model.Register == ProductRegister.Enterprise
+        ? "Enterprise services"
+        : "Search and filter products and services";
+    var listController = Model.ListController;
+    var pageEntries = string.IsNullOrEmpty(Model.ErrorMessage)
+        ? PaginationHelper.GetPageEntries(Model.CurrentPage, Model.TotalPages)
+        : Array.Empty<PaginationHelper.PageEntry>();
+
+    RouteValueDictionary ProductsRoute(int pageNum) => Model.ToProductsRoute(pageNum);
+
+    var sidebarKinds = new[]
+    {
+        FipsTaxonomyKind.BusinessArea,
+        FipsTaxonomyKind.Channel,
+        FipsTaxonomyKind.Type
+    };
+    var filterGroups = sidebarKinds
+        .Select(kind => Model.CategorisationItems
+            .Where(i => i.TaxonomyKind == kind)
+            .GroupBy(i => new { i.TaxonomyKind, i.GroupId })
+            .OrderBy(g => g.First().GroupDisplayOrder)
+            .ThenBy(g => g.First().GroupName, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault())
+        .Where(g => g is not null)
+        .Select(g => g!)
+        .ToList();
+
+    var rangeStart = Model.TotalRecords == 0 ? 0 : (Model.CurrentPage - 1) * Model.PageSize + 1;
+    var rangeEnd = Model.TotalRecords == 0 ? 0 : Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalRecords);
+
+    var appliedFilters = new List<(string Group, string Label, string Href)>();
+    if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+    {
+        appliedFilters.Add((
+            "Search",
+            Model.SearchQuery.Trim(),
+            Url.Action("Index", listController, Model.ToProductsRouteClearSearch(1))!));
+    }
+
+    void AddApplied(FipsTaxonomyKind kind, IEnumerable<int> ids)
+    {
+        var group = ProductListViewModel.TaxonomyKindCaption(kind);
+        foreach (var id in ids)
+        {
+            appliedFilters.Add((
+                group,
+                Model.GetTaxonomyItemDisplayName(kind, id),
+                Url.Action("Index", listController, Model.ToProductsRouteRemovingTaxonomyItem(kind, id, 1))!));
+        }
+    }
+
+    AddApplied(FipsTaxonomyKind.BusinessArea, Model.SelectedBusinessAreaIds);
+    AddApplied(FipsTaxonomyKind.Channel, Model.SelectedChannelIds);
+    foreach (var phase in Model.SelectedPhases)
+    {
+        appliedFilters.Add((
+            "Phase",
+            phase,
+            Url.Action("Index", listController, Model.ToProductsRouteRemovingPhase(phase, 1))!));
+    }
+
+    AddApplied(FipsTaxonomyKind.Type, Model.SelectedTypeIds);
+    AddApplied(FipsTaxonomyKind.UserGroup, Model.SelectedUserGroupIds);
+    if (!string.IsNullOrWhiteSpace(Model.SelectedUserGroupName))
+    {
+        appliedFilters.Add((
+            "User group",
+            Model.SelectedUserGroupName.Trim(),
+            Url.Action("Index", listController, Model.ToProductsRouteRemovingUserGroupName(1))!));
+    }
+    AddApplied(FipsTaxonomyKind.ContactRole, Model.SelectedContactRoleIds);
+    AddApplied(FipsTaxonomyKind.Categorisation, Model.SelectedCategoryIds);
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="govuk-error-summary" role="alert" tabindex="-1">
+        <h2 class="govuk-error-summary__title">There is a problem</h2>
+        <ul class="govuk-list govuk-error-summary__list">
+            <li>@Model.ErrorMessage</li>
+        </ul>
+    </div>
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+        <aside class="govuk-!-margin-bottom-6" aria-labelledby="fips-products-filter-heading">
+            <div class="govuk-summary-card fips-products-filter">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 id="fips-products-filter-heading" class="govuk-summary-card__title">Filter</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+
+            @if (!string.IsNullOrEmpty(Model.CategorisationLookupError))
+            {
+                <p class="govuk-body govuk-error-message">@Model.CategorisationLookupError</p>
+            }
+
+            <form id="fips-products-filter-form" method="get" action="@Url.Action("Index", listController)" class="govuk-!-margin-bottom-0">
+                <input type="hidden" name="page" value="1" />
+                @foreach (var userGroupId in Model.SelectedUserGroupIds)
+                {
+                    <input type="hidden" name="userGroupIds" value="@userGroupId" />
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.SelectedUserGroupName))
+                {
+                    <input type="hidden" name="userGroup" value="@Model.SelectedUserGroupName" />
+                }
+
+                <div class="govuk-form-group govuk-!-margin-bottom-4 fips-products-filter__search">
+                    <label class="govuk-label govuk-label--s" for="product-search">Search</label>
+                    <div id="product-search-hint" class="govuk-hint">Product names, contacts, or categories</div>
+                    <div class="products-filter__search-input-wrap">
+                        <input class="govuk-input products-filter__search-input" id="product-search" name="q" type="search" spellcheck="false" autocomplete="off" value="@Model.SearchQuery" aria-describedby="product-search-hint" />
+                        <button type="submit" class="products-filter__search-submit" aria-label="Search" title="Search">
+                            <svg width="22" height="22" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                <circle cx="12.0161" cy="11.0161" r="8.51613" stroke="currentColor" stroke-width="2.5"></circle>
+                                <line x1="17.8668" y1="16.8667" x2="24.447" y2="23.447" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                @if (filterGroups.Count > 0 || Model.PhaseOptions.Count > 0)
+                {
+                    <div class="fips-products-filter__groups">
+                    @foreach (var grp in filterGroups)
+                    {
+                        var showPhase = grp.Key.TaxonomyKind == FipsTaxonomyKind.Type && Model.PhaseOptions.Count > 0;
+                        var legend = ProductListViewModel.TaxonomyKindCaption(grp.Key.TaxonomyKind);
+                        var detailsId = $"filter-details-{grp.Key.TaxonomyKind}-{grp.Key.GroupId}";
+                        if (showPhase)
+                        {
+                            <details class="fips-filter-disclosure" id="filter-details-phase">
+                                <summary class="fips-filter-disclosure__summary">
+                                    <span class="fips-filter-disclosure__summary-row">
+                                        <span class="fips-filter-disclosure__title">Phase</span>
+                                        <span class="fips-filter-disclosure__chevron" aria-hidden="true">
+                                            <svg class="fips-filter-disclosure__chevron-icon" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                                <path d="M1 1.5L8 8.5L15 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </summary>
+                                <div class="fips-filter-disclosure__panel">
+                                    <div class="fips-filter-scroll">
+                                        <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                                            @foreach (var phase in Model.PhaseOptions)
+                                            {
+                                                var phaseId = "flt-phase-" + phase.ToLowerInvariant().Replace(' ', '-');
+                                                var phaseSelected = Model.SelectedPhases.Contains(phase, StringComparer.OrdinalIgnoreCase);
+                                                <div class="govuk-checkboxes__item">
+                                                    <input class="govuk-checkboxes__input" id="@phaseId" name="phases" type="checkbox" value="@phase" @(phaseSelected ? "checked" : null) />
+                                                    <label class="govuk-label govuk-checkboxes__label" for="@phaseId">@phase</label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        }
+
+                        <details class="fips-filter-disclosure" id="@detailsId">
+                            <summary class="fips-filter-disclosure__summary">
+                                <span class="fips-filter-disclosure__summary-row">
+                                    <span class="fips-filter-disclosure__title">@legend</span>
+                                    <span class="fips-filter-disclosure__chevron" aria-hidden="true">
+                                        <svg class="fips-filter-disclosure__chevron-icon" width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                                            <path d="M1 1.5L8 8.5L15 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                </span>
+                            </summary>
+                            <div class="fips-filter-disclosure__panel">
+                                <div class="fips-filter-scroll">
+                                    <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                                        @foreach (var item in grp.OrderBy(i => i.DisplayOrder).ThenBy(i => i.Name))
+                                        {
+                                            var paramName = ProductListViewModel.FilterQueryParamName(item.TaxonomyKind);
+                                            var cid = $"flt-{item.TaxonomyKind}-{item.GroupId}-{item.Id}";
+                                            <div class="govuk-checkboxes__item">
+                                                <input class="govuk-checkboxes__input" id="@cid" name="@paramName" type="checkbox" value="@item.Id" @(Model.IsFilterSelected(item) ? "checked" : null) />
+                                                <label class="govuk-label govuk-checkboxes__label" for="@cid">@(item.Name ?? "—")</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    }
+                    </div>
+                }
+
+                <button type="submit" class="govuk-button fips-products-filter__apply govuk-!-margin-bottom-3" data-module="govuk-button">Apply filter</button>
+
+                <p class="govuk-body govuk-!-margin-bottom-0">
+                    <a class="govuk-link govuk-link--no-visited-state" href="@Url.Action("Index", listController)">Clear filters</a>
+                </p>
+            </form>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@(Model.Register == ProductRegister.Enterprise ? "Search and filter enterprise services" : "Search and filter products and services")</h1>
+
+        @if (string.IsNullOrEmpty(Model.ErrorMessage) && Model.HasActiveFilters)
+        {
+            <section class="fips-active-filters" aria-labelledby="fips-active-filters-heading">
+                <div class="fips-active-filters__header">
+                    <h2 id="fips-active-filters-heading" class="govuk-heading-s govuk-!-margin-bottom-0">Applied filters</h2>
+                    <a class="govuk-link govuk-link--no-visited-state" href="@Url.Action("Index", listController, Model.ToProductsRouteClearAllFilters(1))">Clear all<span class="govuk-visually-hidden"> filters</span></a>
+                </div>
+                @foreach (var group in appliedFilters.GroupBy(item => item.Group))
+                {
+                    <h3 class="govuk-heading-s fips-active-filters__group-title">@group.Key</h3>
+                    <ul class="fips-active-filters__list">
+                        @foreach (var item in group)
+                        {
+                            <li>
+                                <a class="fips-active-filters__tag" href="@item.Href">
+                                    <span class="govuk-visually-hidden">Remove @group.Key.ToLowerInvariant() filter </span>@item.Label
+                                    <svg class="fips-active-filters__remove-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                                        <path d="M1 1l10 10M11 1L1 11" fill="none" stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+        }
+
+        @if (string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="govuk-!-margin-bottom-4">
+                <h2 id="products-results-summary-title" class="govuk-heading-m">All products and services</h2>
+                <details class="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">Missing a product or service?</span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        If a product is missing from this register, you need to <a class="govuk-link govuk-link--no-visited-state" href="https://dfe.service-now.com/mydfe?id=sc_cat_item&sys_id=b97008b81b7680d02fe864606e4bcb9d&table=sc_cat_item" rel="noopener noreferrer" target="_blank">create a new service offering in ServiceNow<span class="govuk-visually-hidden"> (opens in a new tab)</span></a>.
+                    </div>
+                </details>
+                <p class="govuk-body">
+                    Showing @rangeStart.ToString("N0") to @rangeEnd.ToString("N0") of @Model.TotalRecords.ToString("N0") products and services
+                </p>
+            </div>
+        }
+
+        @if (Model.Products.Count > 0)
+        {
+            <div class="fips-product-results govuk-!-margin-bottom-6">
+                @for (var i = 0; i < Model.Products.Count; i++)
+                {
+                    var p = Model.Products[i];
+                    var summary = DescriptionText.Truncate(p.LongDescription);
+                    <div class="fips-product-results__item">
+                        <p class="govuk-body govuk-!-margin-bottom-2">
+                            <a class="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold" href="@Url.Action(p.NumericUniqueId is null ? "DetailsByGuid" : "Details", "Products", new { id = p.NumericUniqueId ?? (object)p.Id })">@(p.ProductName ?? "—")</a>
+                        </p>
+                        @if (!string.IsNullOrWhiteSpace(summary))
+                        {
+                            <p class="govuk-body govuk-!-margin-bottom-2">@summary</p>
+                        }
+                        <p class="govuk-body govuk-!-margin-bottom-0 fips-product-results__tags">
+                            @if (!string.IsNullOrWhiteSpace(p.Phase))
+                            {
+                                <strong class="govuk-tag govuk-tag--blue">@p.Phase</strong>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(p.BusinessArea))
+                            {
+                                <strong class="govuk-tag govuk-tag--blue">@p.BusinessArea</strong>
+                            }
+                            @if (string.IsNullOrWhiteSpace(p.Phase) && string.IsNullOrWhiteSpace(p.BusinessArea))
+                            {
+                                <span class="govuk-hint govuk-!-margin-bottom-0">No phase or business area</span>
+                            }
+                        </p>
+                    </div>
+                    @if (i < Model.Products.Count - 1)
+                    {
+                        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-4 govuk-!-margin-bottom-4" />
+                    }
+                }
+            </div>
+        }
+        else if (string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <p class="govuk-body">No products and services match your filters.</p>
+        }
+
+        @if (Model.TotalPages > 1 && string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <nav class="govuk-pagination" role="navigation" aria-label="Pagination">
+                @if (Model.CurrentPage > 1)
+                {
+                    <div class="govuk-pagination__prev">
+                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", listController, ProductsRoute(Model.CurrentPage - 1))" rel="prev">
+                            <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                            </svg>
+                            <span class="govuk-pagination__link-title">
+                                Previous<span class="govuk-visually-hidden"> page</span>
+                            </span>
+                        </a>
+                    </div>
+                }
+                <ul class="govuk-pagination__list">
+                    @foreach (var entry in pageEntries)
+                    {
+                        if (entry.IsEllipsis)
+                        {
+                            <li class="govuk-pagination__item govuk-pagination__item--ellipsis">&ctdot;</li>
+                        }
+                        else if (entry.Page == Model.CurrentPage)
+                        {
+                            <li class="govuk-pagination__item govuk-pagination__item--current">
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", listController, ProductsRoute(entry.Page))" aria-label="Page @entry.Page" aria-current="page">
+                                    @entry.Page
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="govuk-pagination__item">
+                                <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", listController, ProductsRoute(entry.Page))" aria-label="Page @entry.Page">
+                                    @entry.Page
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <div class="govuk-pagination__next">
+                        <a class="govuk-link govuk-pagination__link" href="@Url.Action("Index", listController, ProductsRoute(Model.CurrentPage + 1))" rel="next">
+                            <span class="govuk-pagination__link-title">
+                                Next<span class="govuk-visually-hidden"> page</span>
+                            </span>
+                            <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                }
+            </nav>
+        }
+    </div>
+</div>
+

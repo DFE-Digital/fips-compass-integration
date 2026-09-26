@@ -1,0 +1,28 @@
+.fips-product-nav__separator {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #b1b4b6;
+}
+
+/* Product detail — right-hand sidebar cards: 1rem body text */
+.fips-product-sidebar-card .govuk-summary-card__content {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.fips-product-sidebar-card .govuk-summary-card__content .govuk-heading-s {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.fips-product-sidebar-card .govuk-summary-card__content .govuk-body,
+.fips-product-sidebar-card .govuk-summary-card__content .govuk-link {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.fips-product-sidebar-card .govuk-summary-card__content .govuk-summary-list__key,
+.fips-product-sidebar-card .govuk-summary-card__content .govuk-summary-list__value {
+  font-size: 1rem;
+  line-height: 1.25;
+}

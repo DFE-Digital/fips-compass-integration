@@ -1,0 +1,30 @@
+.fips-user-group-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fips-user-group-list > .fips-user-group-list__item {
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #b1b4b6;
+}
+
+.fips-user-group-list > .fips-user-group-list__item:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.fips-user-group-list__links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  row-gap: 0.5rem;
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fips-user-group-list__links > li {
+  margin-bottom: 0;
+}

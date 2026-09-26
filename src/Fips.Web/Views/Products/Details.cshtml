@@ -1,0 +1,236 @@
+@model ProductDetailViewModel
+@{
+    ViewData["Title"] = Model.Product?.ProductName ?? "Product";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/product-detail.css" asp-append-version="true" />
+}
+
+@section Masthead {
+@if (Model.Product is not null && ViewData["ShowProductPageMasthead"] as bool? == true)
+{
+    var p = Model.Product;
+    <div class="dfe-f-masthead dfe-f-masthead--page">
+        <div class="@FipsLayout.AppShellContainerClass dfe-f-masthead__inner">
+            @if (ViewData["Breadcrumbs"] is IList<(string Text, string? Href)> crumbs && crumbs.Count > 0)
+            {
+                <nav class="govuk-breadcrumbs govuk-!-margin-bottom-4" aria-label="Breadcrumb">
+                    <ol class="govuk-breadcrumbs__list">
+                        @foreach (var (text, href) in crumbs)
+                        {
+                            <li class="govuk-breadcrumbs__list-item">
+                                @if (href is not null)
+                                {
+                                    <a class="govuk-breadcrumbs__link" href="@href">@text</a>
+                                }
+                                else
+                                {
+                                    @text
+                                }
+                            </li>
+                        }
+                    </ol>
+                </nav>
+            }
+            <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-4">@(p.ProductName ?? "Product")</h1>
+            @{
+                var serviceOwnerNames = p.Contacts
+                    .Where(contact => string.Equals(contact.Role?.Trim(), "Service owner", StringComparison.OrdinalIgnoreCase))
+                    .Select(contact => string.IsNullOrWhiteSpace(contact.Name) ? null : contact.Name.Trim())
+                    .Where(name => name is not null)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            <table class="govuk-table govuk-!-margin-bottom-0">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Phase</th>
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Service owner</th>
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">Business area</th>
+                        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter">View product</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            <span class="govuk-visually-hidden">Phase: </span>
+                            @if (!string.IsNullOrWhiteSpace(p.Phase))
+                            {
+                                <strong class="govuk-tag govuk-tag--blue">@p.Phase</strong>
+                            }
+                            else
+                            {
+                                <span class="govuk-hint govuk-!-margin-bottom-0">Not specified</span>
+                            }
+                        </td>
+                        <td class="govuk-table__cell">
+                            <span class="govuk-visually-hidden">Service owner: </span>
+                            @(serviceOwnerNames.Count == 0 ? "No owner" : string.Join(", ", serviceOwnerNames))
+                        </td>
+                        <td class="govuk-table__cell">
+                            <span class="govuk-visually-hidden">Business area: </span>
+                            @(string.IsNullOrWhiteSpace(p.BusinessArea) ? "—" : p.BusinessArea)
+                        </td>
+                        <td class="govuk-table__cell">
+                            @if (!string.IsNullOrWhiteSpace(p.ProductUrl))
+                            {
+                                <a class="govuk-link" href="@p.ProductUrl" target="_blank" rel="noopener noreferrer">View product<span class="govuk-visually-hidden"> online for @(string.IsNullOrWhiteSpace(p.ProductName) ? "this product" : p.ProductName) (opens in a new tab)</span></a>
+                            }
+                            else
+                            {
+                                <span>Not available</span>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+}
+
+@if (ViewBag.ErrorMessage is string err && !string.IsNullOrEmpty(err))
+{
+    <div class="govuk-error-summary" role="alert">
+        <h1 class="govuk-heading-l">Could not load product</h1>
+        <p class="govuk-body">@err</p>
+    </div>
+}
+else if (Model.Product is null)
+{
+    <p class="govuk-body">Product not found.</p>
+}
+else
+{
+    var p = Model.Product;
+    var routeId = p.NumericUniqueId ?? (object)p.Id;
+    var overviewUrl = Url.Action(p.NumericUniqueId is null ? "DetailsByGuid" : "Details", "Products", new { id = routeId });
+    var categoriesUrl = Url.Action(p.NumericUniqueId is null ? "CategoriesByGuid" : "Categories", "Products", new { id = routeId });
+    var onOverview = Model.Section == ProductDetailSection.Overview;
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-quarter">
+            <nav class="dfe-f-side-navigation" aria-label="Product">
+                <ul class="dfe-f-side-navigation__list">
+                    <li class="dfe-f-side-navigation__item@(onOverview ? " dfe-f-side-navigation__item--current" : "")">
+                        @if (onOverview)
+                        {
+                            <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@overviewUrl" aria-current="page">Overview</a>
+                        }
+                        else
+                        {
+                            <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@overviewUrl">Overview</a>
+                        }
+                    </li>
+                    <li class="dfe-f-side-navigation__item@(!onOverview ? " dfe-f-side-navigation__item--current" : "")">
+                        @if (!onOverview)
+                        {
+                            <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@categoriesUrl" aria-current="page">Categories</a>
+                        }
+                        else
+                        {
+                            <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@categoriesUrl">Categories</a>
+                        }
+                    </li>
+                    @if (!string.IsNullOrEmpty(Model.CompassEntryUrl))
+                    {
+                        <li class="dfe-f-side-navigation__item fips-product-nav__separator">
+                            <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@Model.CompassEntryUrl" rel="noopener noreferrer" target="_blank">Manage this information in COMPASS<span class="govuk-visually-hidden"> (opens in a new tab)</span></a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+        <div class="govuk-grid-column-three-quarters">
+            @if (onOverview)
+            {
+                <h2 class="govuk-heading-m govuk-!-margin-top-0">Description</h2>
+                @if (string.IsNullOrWhiteSpace(p.LongDescription))
+                {
+                    <p class="govuk-body">—</p>
+                }
+                else
+                {
+                    <div class="govuk-body" style="white-space: pre-line">@p.LongDescription</div>
+                }
+
+                <dl class="govuk-summary-list govuk-!-margin-top-6">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Channels</dt>
+                        <dd class="govuk-summary-list__value">@(p.Channels.Count == 0 ? "—" : string.Join(", ", p.Channels.Select(c => c.Name).Where(n => !string.IsNullOrWhiteSpace(n))))</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Types</dt>
+                        <dd class="govuk-summary-list__value">@(p.Types.Count == 0 ? "—" : string.Join(", ", p.Types.Select(t => t.Name).Where(n => !string.IsNullOrWhiteSpace(n))))</dd>
+                    </div>
+                </dl>
+
+                <h2 class="govuk-heading-m govuk-!-margin-top-6">Responsibilities and contacts</h2>
+                @if (p.Contacts.Count == 0)
+                {
+                    <p class="govuk-body">—</p>
+                }
+                else
+                {
+                    <dl class="govuk-summary-list">
+                        @foreach (var c in p.Contacts)
+                        {
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">@(c.Role ?? "—")</dt>
+                                <dd class="govuk-summary-list__value">
+                                    @if (!string.IsNullOrEmpty(c.Email))
+                                    {
+                                        <a class="govuk-link" href="mailto:@c.Email">@(string.IsNullOrWhiteSpace(c.Name) ? "Email" : c.Name)</a>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(c.Name))
+                                    {
+                                        @c.Name
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </dd>
+                            </div>
+                        }
+                    </dl>
+                }
+            }
+            else
+            {
+                <h2 class="govuk-heading-m govuk-!-margin-top-0">Categories</h2>
+                @if (Model.CategoryAssignments.Count == 0)
+                {
+                    <p class="govuk-body">This product has not been categorised.</p>
+                }
+                else
+                {
+                    @foreach (var group in Model.CategoryAssignments.GroupBy(item => item.GroupName))
+                    {
+                        <h3 class="govuk-heading-s">@group.Key</h3>
+                        <dl class="govuk-summary-list">
+                            @foreach (var item in group)
+                            {
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        <a class="govuk-link" href="@item.ProductsUrl">@item.Name</a>
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        @if (string.IsNullOrWhiteSpace(item.Description))
+                                        {
+                                            <span class="govuk-hint govuk-!-margin-bottom-0">No description</span>
+                                        }
+                                        else
+                                        {
+                                            @item.Description
+                                        }
+                                    </dd>
+                                </div>
+                            }
+                        </dl>
+                    }
+                }
+            }
+        </div>
+    </div>
+}

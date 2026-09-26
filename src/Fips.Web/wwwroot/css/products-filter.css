@@ -1,0 +1,267 @@
+/* Products page — filter summary card + search + taxonomy accordions */
+
+/* Search: input + submit flush right */
+.fips-products-filter__search .products-filter__search-input-wrap {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+}
+
+.fips-products-filter__search .products-filter__search-input-wrap:focus-within {
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+}
+
+.fips-products-filter__search .products-filter__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  border-right: 0;
+  border-radius: 0;
+}
+
+.fips-products-filter__search .products-filter__search-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border: 2px solid #1d70b8;
+  border-left: 0;
+  border-radius: 0;
+  background: #1d70b8;
+  color: #fff;
+  cursor: pointer;
+}
+
+.fips-products-filter__search .products-filter__search-submit:hover {
+  background: #145a8d;
+  border-color: #145a8d;
+  color: #fff;
+}
+
+.fips-products-filter__search .products-filter__search-submit:focus {
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+  z-index: 2;
+}
+
+.fips-products-filter__search .products-filter__search-submit svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Checkbox stack — breathing room */
+.fips-products-filter .govuk-checkboxes--small .govuk-checkboxes__item:last-child {
+  margin-bottom: 0;
+}
+
+/* Space above primary action (after search / enterprise / disclosure groups) */
+.fips-products-filter__apply {
+  margin-top: 1.25rem;
+}
+
+/* Custom disclosure accordions (native <details>) — not govuk-details */
+.fips-products-filter__groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.fips-filter-disclosure {
+  display: block;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #b1b4b6;
+  border-radius: 0;
+  background: transparent;
+  color: #0b0c0c;
+}
+
+.fips-filter-disclosure:last-child {
+  border-bottom: 0;
+}
+
+.fips-filter-disclosure__summary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0;
+  margin: 0;
+  list-style: none;
+  cursor: pointer;
+  background: transparent;
+}
+
+.fips-filter-disclosure__summary::-webkit-details-marker {
+  display: none;
+}
+
+.fips-filter-disclosure__summary::marker {
+  content: "";
+}
+
+.fips-filter-disclosure__summary:hover .fips-filter-disclosure__title {
+  color: #003078;
+  text-decoration: underline;
+  text-decoration-thickness: max(3px, 0.1875rem);
+}
+
+.fips-filter-disclosure__summary:focus {
+  outline: none;
+}
+
+.fips-filter-disclosure__summary:focus-visible {
+  outline: 3px solid #fd0;
+  outline-offset: 0;
+}
+
+.fips-filter-disclosure__summary-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.fips-filter-disclosure__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1.1875rem;
+  line-height: 1.3157894737;
+}
+
+.fips-filter-disclosure__chevron {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.2rem;
+  color: #505a5f;
+}
+
+.fips-filter-disclosure__chevron-icon {
+  display: block;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+
+.fips-filter-disclosure[open] .fips-filter-disclosure__chevron-icon {
+  transform: rotate(180deg);
+}
+
+.fips-filter-disclosure__panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/*
+ * overflow-y:auto clips GOV.UK checkbox focus/hover outlines (~3px). Inset padding keeps the
+ * ring fully visible; horizontal padding is symmetric and small.
+ */
+.fips-filter-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 5px;
+  box-sizing: border-box;
+}
+
+.fips-filter-scroll .govuk-checkboxes__item:last-child {
+  margin-bottom: 2px;
+}
+
+/* Applied filters — removable chips, grouped by filter type */
+.fips-active-filters {
+  margin-bottom: 1.5rem;
+  padding: 15px 20px 5px;
+  background-color: #f3f2f1;
+}
+
+.fips-active-filters__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 10px;
+}
+
+.fips-active-filters__group-title {
+  margin-bottom: 5px;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.fips-active-filters__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 15px;
+  padding: 0;
+  list-style: none;
+}
+
+.fips-active-filters__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 8px 6px 10px;
+  background-color: #1d70b8;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.fips-active-filters__tag:hover {
+  background-color: #003078;
+  color: #fff;
+}
+
+.fips-active-filters__tag:focus {
+  background-color: #fd0;
+  color: #0b0c0c;
+  outline: 3px solid transparent;
+  box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+}
+
+.fips-active-filters__remove-icon {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+}
+
+/* Results column — optional subtle top alignment with filter card */
+@media (min-width: 40.0625rem) {
+  .fips-product-results {
+    padding-top: 0;
+  }
+}
+
+/* Product list tags: multiple tags inline; text inside each tag stays on one line */
+.fips-product-results__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.fips-product-results .govuk-tag {
+  display: inline-block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,135 @@
+@model CookiePreferencesViewModel
+@{
+    ViewData["Title"] = "Cookies";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">Cookies</h1>
+
+        <p class="govuk-body">We use cookies to make this service work and collect analytics information. To accept or reject analytics cookies, choose on or off and then select 'Save cookie preferences'.</p>
+
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                <div class="govuk-notification-banner__header">
+                    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">Success</h2>
+                </div>
+                <div class="govuk-notification-banner__content">
+                    <p class="govuk-notification-banner__heading">@successMessage</p>
+                </div>
+            </div>
+        }
+
+        <form class="cookie-preferences-form" method="post" action="@Url.Action("Preferences", "Cookies")">
+            @Html.AntiForgeryToken()
+
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">Cookies that measure website use</h2>
+                    </legend>
+                    <div id="analytics-cookies-hint" class="govuk-hint">
+                        We use Google Analytics and Microsoft Clarity to understand how you use the service so we can improve it. These tools are only added if you turn these cookies on. If you turn them off, the tracking code and analytics cookies are removed.
+                    </div>
+                    <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="analytics-on" name="AnalyticsAccepted" type="radio" value="true" @(Model.AnalyticsAccepted ? "checked" : null) aria-describedby="analytics-cookies-hint">
+                            <label class="govuk-label govuk-radios__label" for="analytics-on">On</label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="analytics-off" name="AnalyticsAccepted" type="radio" value="false" @(!Model.AnalyticsAccepted ? "checked" : null)>
+                            <label class="govuk-label govuk-radios__label" for="analytics-off">Off</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset" aria-describedby="essential-cookies-hint">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">Essential cookies</h2>
+                    </legend>
+                    <div id="essential-cookies-hint" class="govuk-hint">
+                        These cookies remember your cookie settings. They always need to be on.
+                    </div>
+                    <div class="govuk-radios govuk-radios--inline">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="essential-on" name="EssentialAccepted" type="radio" value="true" checked disabled>
+                            <label class="govuk-label govuk-radios__label" for="essential-on">On</label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="essential-off" name="EssentialAccepted" type="radio" value="false" disabled>
+                            <label class="govuk-label govuk-radios__label" for="essential-off">Off</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <button class="govuk-button" data-module="govuk-button" type="submit">Save cookie preferences</button>
+        </form>
+
+        <h2 class="govuk-heading-l">How cookies are used</h2>
+
+        <h3 class="govuk-heading-m">Essential cookies</h3>
+        <p class="govuk-body">Essential cookies remember your cookie settings. We do not need to ask permission to use them.</p>
+
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Purpose</th>
+                    <th scope="col" class="govuk-table__header">Expires</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">cookie-preferences</td>
+                    <td class="govuk-table__cell">Remembers whether you have accepted or rejected analytics cookies</td>
+                    <td class="govuk-table__cell">1 year</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="govuk-heading-m">Analytics cookies</h3>
+        <p class="govuk-body">If you accept analytics cookies, we add Google Analytics and Microsoft Clarity to the page. They collect the pages you visit, how long you spend on each page, and what you select.</p>
+        <p class="govuk-body">If you reject analytics cookies, or later set them to off, that tracking code is removed and the analytics cookies are deleted. We do not use these cookies to identify you.</p>
+
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Purpose</th>
+                    <th scope="col" class="govuk-table__header">Expires</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">_ga</td>
+                    <td class="govuk-table__cell">Google Analytics — distinguishes browsers</td>
+                    <td class="govuk-table__cell">2 years</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">_ga_*</td>
+                    <td class="govuk-table__cell">Google Analytics — stores session information</td>
+                    <td class="govuk-table__cell">2 years</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">_gid</td>
+                    <td class="govuk-table__cell">Google Analytics — distinguishes browsers</td>
+                    <td class="govuk-table__cell">24 hours</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">_clck</td>
+                    <td class="govuk-table__cell">Microsoft Clarity — distinguishes browsers</td>
+                    <td class="govuk-table__cell">1 year</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">_clsk</td>
+                    <td class="govuk-table__cell">Microsoft Clarity — stores session information</td>
+                    <td class="govuk-table__cell">1 day</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

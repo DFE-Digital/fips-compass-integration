@@ -1,0 +1,22 @@
+@model IReadOnlyList<CategoryTaxonomyItemViewModel>
+<div class="fips-category-results govuk-!-margin-bottom-6">
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var item = Model[i];
+        var summary = DescriptionText.Truncate(item.Description);
+        var href = string.IsNullOrEmpty(item.PageUrl) ? item.ProductsUrl : item.PageUrl;
+        <div class="fips-category-results__item">
+            <p class="govuk-body govuk-!-margin-bottom-2">
+                <a class="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold" href="@href">@(item.Name ?? "—")</a>
+            </p>
+            @if (!string.IsNullOrWhiteSpace(summary))
+            {
+                <p class="govuk-body govuk-!-margin-bottom-0">@summary</p>
+            }
+        </div>
+        @if (i < Model.Count - 1)
+        {
+            <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-3 govuk-!-margin-bottom-3" />
+        }
+    }
+</div>

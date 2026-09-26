@@ -1,0 +1,28 @@
+/*
+  Inter from https://rsms.me/inter/ — loaded in _Layout.cshtml before GOV.UK, then this file
+  loads after govuk-frontend.min.css so these rules override GDS Transport on all selectors.
+*/
+
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+html.govuk-template,
+html.govuk-template * {
+  font-family: Inter, sans-serif !important;
+  font-feature-settings: "liga" 1, "calt" 1 !important;
+}
+
+@supports (font-variation-settings: normal) {
+  html.govuk-template,
+  html.govuk-template * {
+    font-family: InterVariable, sans-serif !important;
+  }
+}

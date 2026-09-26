@@ -1,0 +1,65 @@
+@model CategoryGroupDetailViewModel
+@{
+    ViewData["Title"] = Model.GroupName;
+    var hasSideNav = Model.CategoryNavLinks.Count > 0;
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/categories.css" asp-append-version="true" />
+}
+
+<div class="govuk-grid-row">
+    @if (hasSideNav)
+    {
+        <div class="govuk-grid-column-one-quarter">
+            <nav class="dfe-f-side-navigation" aria-label="Section navigation" data-module="dfe-f-side-navigation">
+                <button type="button" class="dfe-f-side-navigation__toggle" aria-controls="fips-categories-side-nav" aria-expanded="false">Section navigation</button>
+                <ul id="fips-categories-side-nav" class="dfe-f-side-navigation__list" hidden>
+                    @foreach (var link in Model.CategoryNavLinks)
+                    {
+                        <li class="dfe-f-side-navigation__item@(link.IsCurrent ? " dfe-f-side-navigation__item--current" : "")">
+                            @if (link.IsCurrent)
+                            {
+                                <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@link.Href" aria-current="page">@link.Text</a>
+                            }
+                            else
+                            {
+                                <a class="dfe-f-side-navigation__link govuk-link govuk-link--no-visited-state govuk-link--no-underline" href="@link.Href">@link.Text</a>
+                            }
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+    <div class="@(hasSideNav ? "govuk-grid-column-three-quarters" : "govuk-grid-column-full")">
+        <h1 class="govuk-heading-xl">@Model.GroupName</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Model.GroupDescription))
+        {
+            <p class="govuk-body-l">@Model.GroupDescription</p>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="govuk-error-summary" role="alert" tabindex="-1">
+                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                <ul class="govuk-list govuk-error-summary__list">
+                    <li>@Model.ErrorMessage</li>
+                </ul>
+            </div>
+        }
+        else if (Model.Items.Count == 0)
+        {
+            <p class="govuk-body">No items in this category.</p>
+        }
+        else if (Model.TaxonomyKind == FipsTaxonomyKind.UserGroup)
+        {
+            <partial name="_UserGroupList" model="Model.Items" />
+        }
+        else
+        {
+            <partial name="_CategoryResults" model="Model.Items" />
+        }
+    </div>
+</div>

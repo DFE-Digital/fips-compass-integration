@@ -1,0 +1,45 @@
+@model IReadOnlyList<CategoryTaxonomyItemViewModel>
+@{
+    var heading = ViewData["UserGroupHeading"] as string ?? "h2";
+    var headingClass = heading == "h3" ? "govuk-heading-s" : "govuk-heading-m";
+}
+<ul class="govuk-list fips-user-group-list">
+    @foreach (var item in Model)
+    {
+        var subGroupLabel = item.ChildCount == 1
+            ? "View 1 sub group"
+            : $"View {item.ChildCount} sub groups";
+        <li class="fips-user-group-list__item">
+            @if (heading == "h3")
+            {
+                <h3 class="@headingClass govuk-!-margin-bottom-2">@(item.Name ?? "—")</h3>
+            }
+            else
+            {
+                <h2 class="@headingClass govuk-!-margin-bottom-2">@(item.Name ?? "—")</h2>
+            }
+            @if (!string.IsNullOrWhiteSpace(item.Description))
+            {
+                <p class="govuk-body">@item.Description</p>
+            }
+            <ul class="govuk-list fips-user-group-list__links">
+                @if (!string.IsNullOrEmpty(item.ProductsUrl))
+                {
+                    <li>
+                        <a class="govuk-link govuk-link--no-visited-state" href="@item.ProductsUrl">View products for this group</a>
+                    </li>
+                }
+                @if (item.ChildCount > 0)
+                {
+                    <li>
+                        <a class="govuk-link govuk-link--no-visited-state" href="@item.PageUrl">@subGroupLabel</a>
+                    </li>
+                }
+                else
+                {
+                    <li>No further sub groups</li>
+                }
+            </ul>
+        </li>
+    }
+</ul>

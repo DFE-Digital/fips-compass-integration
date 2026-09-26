@@ -1,0 +1,15 @@
+bin/
+obj/
+logs/
+*.user
+.vs/
+.idea/
+node_modules/
+
+# Application settings can contain API tokens and other secrets.
+# Ignore every appsettings file, including environment-specific and local overrides.
+appsettings.json
+appsettings.*.json
+secrets.json
+*.pfx
+*.snk
