@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://rsms.me/" />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="stylesheet" href="~/lib/govuk/govuk-frontend.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/_content/DfEDigital.Frontend.AspNetCore/dfe/dfe.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/dfe/dfe.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dfe-side-navigation.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/inter.css" asp-append-version="true" />
     @await RenderSectionAsync("Head", required: false)
@@ -34,8 +34,9 @@
     <header class="govuk-header dfe-f-header" role="banner">
         <div class="govuk-header__container @FipsLayout.AppShellContainerClass">
             <div class="govuk-header__logo">
-                <a href="https://www.gov.uk/government/organisations/department-for-education" class="govuk-header__homepage-link">
-                    <img class="govuk-header__logotype dfe-f-header__logo-img" src="~/images/department-for-education_white.png" alt="Department for Education" decoding="async" asp-append-version="true" />
+                <a href="https://www.gov.uk/government/organisations/department-for-education" class="govuk-header__homepage-link" aria-label="Department for Education">
+                    <img class="govuk-header__logotype dfe-f-header__logo-img dfe-f-header__logo-img--white" src="~/images/department-for-education_white.png" alt="" decoding="async" asp-append-version="true" />
+                    <img class="govuk-header__logotype dfe-f-header__logo-img dfe-f-header__logo-img--black" src="~/images/department-for-education_black.png" alt="" decoding="async" asp-append-version="true" />
                 </a>
             </div>
         </div>
@@ -167,7 +168,7 @@
         </div>
     </footer>
 
-    <script defer src="~/_content/DfEDigital.Frontend.AspNetCore/dfe/dfe-frontend.iife.min.js" asp-append-version="true"></script>
+    <script defer src="~/lib/dfe/dfe-frontend.iife.min.js" asp-append-version="true"></script>
     <script src="~/js/cookie-banner.js" asp-append-version="true"></script>
     <script type="module">
         import { initAll } from '@Url.Content("~/lib/govuk/govuk-frontend.min.js")'
