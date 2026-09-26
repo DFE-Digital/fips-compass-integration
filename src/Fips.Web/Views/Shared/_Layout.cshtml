@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="stylesheet" href="~/lib/govuk/govuk-frontend.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/_content/DfEDigital.Frontend.AspNetCore/dfe/dfe.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dfe-side-navigation.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/inter.css" asp-append-version="true" />
     @await RenderSectionAsync("Head", required: false)
 </head>
@@ -34,7 +35,7 @@
         <div class="govuk-header__container @FipsLayout.AppShellContainerClass">
             <div class="govuk-header__logo">
                 <a href="https://www.gov.uk/government/organisations/department-for-education" class="govuk-header__homepage-link">
-                    <img class="govuk-header__logotype dfe-f-header__logo-img" src="~/_content/DfEDigital.Frontend.AspNetCore/dfe/dfe-logo-white.png" alt="Department for Education" decoding="async" />
+                    <img class="govuk-header__logotype dfe-f-header__logo-img" src="~/images/department-for-education_white.png" alt="Department for Education" decoding="async" asp-append-version="true" />
                 </a>
             </div>
         </div>
