@@ -3,6 +3,7 @@ using Fips.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +92,19 @@ app.Use(async (context, next) =>
 });
 
 app.UseStaticFiles();
+
+// govuk-frontend.min.css requests fonts and images from /assets, not /lib/govuk/assets.
+var webRoot = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+var govukAssetsPath = Path.Combine(webRoot, "lib", "govuk", "assets");
+if (Directory.Exists(govukAssetsPath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(govukAssetsPath),
+        RequestPath = "/assets"
+    });
+}
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -139,5 +153,9 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Razor class library files (DfE CSS, logo, script) are endpoints, so the
+// site-wide sign-in rule would otherwise block them.
+app.MapStaticAssets().AllowAnonymous();
 
 app.Run();
