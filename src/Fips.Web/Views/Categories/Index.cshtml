@@ -1,7 +1,10 @@
 @model CategoriesIndexViewModel
 @{
     ViewData["Title"] = "Categories";
-    var groups = Model.LookupGroups.Concat(Model.CategorisationGroups).ToList();
+    var groups = Model.LookupGroups
+        .Concat(Model.CategorisationGroups)
+        .OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase)
+        .ToList();
 }
 
 <h1 class="govuk-heading-xl">Categories</h1>

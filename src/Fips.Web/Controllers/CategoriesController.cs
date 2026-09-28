@@ -1,4 +1,5 @@
 using Fips.Data;
+using Fips.Web.Helpers;
 using Fips.Web.Models;
 using Fips.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -31,9 +32,6 @@ public sealed class CategoriesController : Controller
         var groups = result.Items
             .Where(i => i.TaxonomyKind != FipsTaxonomyKind.ContactRole)
             .GroupBy(i => new { i.TaxonomyKind, i.GroupId })
-            .OrderBy(g => (int)g.Key.TaxonomyKind)
-            .ThenBy(g => g.First().GroupDisplayOrder)
-            .ThenBy(g => g.First().GroupName, StringComparer.OrdinalIgnoreCase)
             .Select(g =>
             {
                 var first = g.First();
@@ -50,7 +48,20 @@ public sealed class CategoriesController : Controller
             })
             .ToList();
 
-        var lookupGroups = groups.Where(g => g.TaxonomyKind != FipsTaxonomyKind.Categorisation).ToList();
+        // Phase is not in COMPASS fips/configuration; surface it as a browse group like sibling lookups.
+        var lookupGroups = groups
+            .Where(g => g.TaxonomyKind != FipsTaxonomyKind.Categorisation)
+            .Append(new CategoryGroupSummaryViewModel
+            {
+                TaxonomyKind = FipsTaxonomyKind.Phase,
+                GroupId = ProductPhaseHelper.PhaseGroupId,
+                Title = "Phase",
+                Description = null,
+                ItemCount = 0
+            })
+            .OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
         var categorisationGroups = groups
             .Where(g => g.TaxonomyKind == FipsTaxonomyKind.Categorisation)
             .OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase)
@@ -78,6 +89,9 @@ public sealed class CategoriesController : Controller
         ViewData["NavSection"] = "categories";
         ViewData["NavRegister"] = "";
 
+        if (kind == FipsTaxonomyKind.Phase)
+            return await PhaseGroupViewAsync(cancellationToken);
+
         var result = await _compass.GetCategorisationItemsAsync(cancellationToken);
         if (!string.IsNullOrEmpty(result.ErrorMessage))
         {
@@ -102,8 +116,7 @@ public sealed class CategoriesController : Controller
 
         var inGroup = result.Items
             .Where(i => i.TaxonomyKind == kind && i.GroupId == groupId)
-            .OrderBy(i => i.DisplayOrder)
-            .ThenBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         if (inGroup.Count == 0)
@@ -159,17 +172,68 @@ public sealed class CategoriesController : Controller
         });
     }
 
+    /// <summary>
+    /// Phase options from loaded products (not a COMPASS taxonomy filter). Each phase links to the product list.
+    /// </summary>
+    private async Task<IActionResult> PhaseGroupViewAsync(CancellationToken cancellationToken)
+    {
+        var taxonomy = await _compass.GetCategorisationItemsAsync(cancellationToken);
+        var categoryNavLinks = string.IsNullOrEmpty(taxonomy.ErrorMessage)
+            ? BuildCategoryNavLinks(taxonomy.Items, FipsTaxonomyKind.Phase, ProductPhaseHelper.PhaseGroupId)
+            : Array.Empty<CategoryGroupNavLinkViewModel>();
+
+        ViewData["Breadcrumbs"] = new List<(string Text, string? Href)>
+        {
+            ("Home", Url.Action("Index", "Home")),
+            ("Categories", Url.Action("Index", "Categories")),
+            ("Phase", null)
+        };
+
+        var (products, errorMessage) = await _compass.GetAllActiveProductsAsync(
+            ProductRegister.Standard,
+            cancellationToken);
+
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            return View(new CategoryGroupDetailViewModel
+            {
+                TaxonomyKind = FipsTaxonomyKind.Phase,
+                GroupId = ProductPhaseHelper.PhaseGroupId,
+                GroupName = "Phase",
+                ErrorMessage = errorMessage,
+                CategoryNavLinks = categoryNavLinks,
+                Items = []
+            });
+        }
+
+        var phases = ProductPhaseHelper.BuildPhaseOptions(products);
+        var items = phases
+            .Select((phase, index) => new CategoryTaxonomyItemViewModel
+            {
+                Id = index + 1,
+                Name = phase,
+                ProductsUrl = Url.Action("Index", "Products", new { phases = phase })!
+            })
+            .ToList();
+
+        return View(new CategoryGroupDetailViewModel
+        {
+            TaxonomyKind = FipsTaxonomyKind.Phase,
+            GroupId = ProductPhaseHelper.PhaseGroupId,
+            GroupName = "Phase",
+            CategoryNavLinks = categoryNavLinks,
+            Items = items
+        });
+    }
+
     private IReadOnlyList<CategoryGroupNavLinkViewModel> BuildCategoryNavLinks(
         IReadOnlyList<CompassCategorisationItemRow> items,
         FipsTaxonomyKind currentKind,
         int currentGroupId)
     {
-        return items
+        var links = items
             .Where(i => i.TaxonomyKind != FipsTaxonomyKind.ContactRole)
             .GroupBy(i => new { i.TaxonomyKind, i.GroupId })
-            .OrderBy(g => (int)g.Key.TaxonomyKind)
-            .ThenBy(g => g.First().GroupDisplayOrder)
-            .ThenBy(g => g.First().GroupName, StringComparer.OrdinalIgnoreCase)
             .Select(g =>
             {
                 var first = g.First();
@@ -182,7 +246,20 @@ public sealed class CategoriesController : Controller
                     IsCurrent = tk == currentKind && gid == currentGroupId
                 };
             })
+            .Append(new CategoryGroupNavLinkViewModel
+            {
+                Text = "Phase",
+                Href = Url.Action("Group", "Categories", new
+                {
+                    taxonomyKind = (int)FipsTaxonomyKind.Phase,
+                    groupId = ProductPhaseHelper.PhaseGroupId
+                })!,
+                IsCurrent = currentKind == FipsTaxonomyKind.Phase
+            })
+            .OrderBy(link => link.Text, StringComparer.OrdinalIgnoreCase)
             .ToList();
+
+        return links;
     }
 
     /// <summary>One user group, with links onward to its sub groups.</summary>
@@ -346,6 +423,7 @@ public sealed class CategoriesController : Controller
                 NestedGroups(group.ChildGroups, group.Children),
                 parent: null,
                 trail))
+            .OrderBy(group => group.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 
@@ -378,6 +456,7 @@ public sealed class CategoriesController : Controller
                 NestedGroups(child.ChildGroups, child.Children),
                 node,
                 trail))
+            .OrderBy(child => child.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         if (id > 0)

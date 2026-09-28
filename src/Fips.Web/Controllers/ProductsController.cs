@@ -1,5 +1,6 @@
 using Fips.Data;
 using Fips.Infrastructure.Configuration;
+using Fips.Web.Helpers;
 using Fips.Web.Models;
 using Fips.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +69,7 @@ public sealed class ProductsController : Controller
             _logger.LogWarning("Product list failed: {Message}", fetched.ErrorMessage);
 
         var catalogue = fetched.Products;
-        var phaseOptions = BuildPhaseOptions(catalogue, selectedPhases);
+        var phaseOptions = ProductPhaseHelper.BuildPhaseOptions(catalogue, selectedPhases);
         var filtered = selectedPhases.Count == 0
             ? catalogue
             : catalogue
@@ -390,50 +391,6 @@ public sealed class ProductsController : Controller
             TotalRecords = all.Count
         };
     }
-
-    private static IReadOnlyList<string> BuildPhaseOptions(
-        IReadOnlyList<CompassServiceRegisterProduct> products,
-        IReadOnlyList<string> selectedPhases)
-    {
-        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var product in products)
-        {
-            var phase = product.Phase?.Trim();
-            if (!string.IsNullOrEmpty(phase))
-                names.Add(phase);
-        }
-
-        foreach (var selected in selectedPhases)
-            names.Add(selected);
-
-        return names
-            .OrderBy(PhaseSortKey)
-            .ThenBy(name => name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
-
-    private static int PhaseSortKey(string phase)
-    {
-        for (var i = 0; i < PreferredPhaseOrder.Length; i++)
-        {
-            if (string.Equals(PreferredPhaseOrder[i], phase, StringComparison.OrdinalIgnoreCase))
-                return i;
-        }
-
-        return PreferredPhaseOrder.Length;
-    }
-
-    private static readonly string[] PreferredPhaseOrder =
-    [
-        "Discovery",
-        "Alpha",
-        "Beta",
-        "Private beta",
-        "Public beta",
-        "Live",
-        "Decommissioning",
-        "Retired"
-    ];
 
     private static bool ProductMentionsUserGroup(CompassServiceRegisterProduct product, string userGroupName) =>
         ContainsText(product.ProductName, userGroupName) || ContainsText(product.LongDescription, userGroupName);

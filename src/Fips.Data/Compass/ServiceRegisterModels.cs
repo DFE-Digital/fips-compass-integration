@@ -183,7 +183,13 @@ public enum FipsTaxonomyKind
     ContactRole = 4,
 
     /// <summary>FIPS categorisation groups with nested items — ids match COMPASS product filter <c>categoryIds</c>.</summary>
-    Categorisation = 5
+    Categorisation = 5,
+
+    /// <summary>
+    /// Product lifecycle phase. Not part of COMPASS <c>fips/configuration</c> or Service Register query filters;
+    /// the catalogue derives options from loaded products and filters in the web app.
+    /// </summary>
+    Phase = 6
 }
 
 public sealed class CompassCategorisationItemRow

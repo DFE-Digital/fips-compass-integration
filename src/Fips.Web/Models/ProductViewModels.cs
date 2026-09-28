@@ -89,6 +89,7 @@ public sealed class ProductListViewModel
             FipsTaxonomyKind.UserGroup => "User group",
             FipsTaxonomyKind.ContactRole => "Contact role",
             FipsTaxonomyKind.Categorisation => "Category",
+            FipsTaxonomyKind.Phase => "Phase",
             _ => "Filter"
         };
 
@@ -235,7 +236,7 @@ public sealed class ProductListViewModel
 
 public sealed class CategoriesIndexViewModel
 {
-    /// <summary>Channels, types, business areas, user groups — not contact roles or Compass categorisation groups.</summary>
+    /// <summary>Channels, types, business areas, user groups, and Phase — not contact roles or Compass categorisation groups. Ordered by title.</summary>
     public IReadOnlyList<CategoryGroupSummaryViewModel> LookupGroups { get; init; } =
         Array.Empty<CategoryGroupSummaryViewModel>();
 
