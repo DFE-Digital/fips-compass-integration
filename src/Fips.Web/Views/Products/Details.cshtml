@@ -154,16 +154,6 @@ else
                     <div class="govuk-body" style="white-space: pre-line">@p.LongDescription</div>
                 }
 
-                <dl class="govuk-summary-list govuk-!-margin-top-6">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">Channels</dt>
-                        <dd class="govuk-summary-list__value">@(p.Channels.Count == 0 ? "—" : string.Join(", ", p.Channels.Select(c => c.Name).Where(n => !string.IsNullOrWhiteSpace(n))))</dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">Types</dt>
-                        <dd class="govuk-summary-list__value">@(p.Types.Count == 0 ? "—" : string.Join(", ", p.Types.Select(t => t.Name).Where(n => !string.IsNullOrWhiteSpace(n))))</dd>
-                    </div>
-                </dl>
 
                 <h2 class="govuk-heading-m govuk-!-margin-top-6">Responsibilities and contacts</h2>
                 @if (p.Contacts.Count == 0)
