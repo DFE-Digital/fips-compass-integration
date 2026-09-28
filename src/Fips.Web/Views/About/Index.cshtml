@@ -1,27 +1,26 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">About this product</h1>
-        <p class="govuk-body-l">Find information about products and services is a read-only catalogue of Department for Education products and services. It shows what exists, who to contact, and how each product or service is categorised.</p>
-        <p class="govuk-body">This site does not store its own copy of the register and it has no content management system. Every list and product page is read from COMPASS.</p>
+        <p class="govuk-body-l">Find information about products and services (FIPS) is a read-only catalogue of products and services in DfE. It shows what exists, who to contact, and how each product or service is categorised.</p>
 
-        <h2 class="govuk-heading-l">Who it is for</h2>
+        <h2 class="govuk-heading-l">Who it's for</h2>
         <p class="govuk-body">Staff use it to find an existing product or service before starting new work, to see who owns it, and to understand the channels, types, business areas, and user groups it covers.</p>
         <p class="govuk-body">Product managers and service owners use it to check how their entry is presented. Changes are made in COMPASS, not in this site.</p>
         <p class="govuk-body">Technical architects use it as the public view of the COMPASS Service Register. The same register can be taken as a spreadsheet or called as an API from COMPASS.</p>
 
         <h2 class="govuk-heading-l">Where the data comes from</h2>
         <p class="govuk-body">COMPASS is the system this product integrates with. The site calls the COMPASS Service Register API and shows the response. It does not call ServiceNow itself.</p>
-        <p class="govuk-body">New products and services are created as service offerings in ServiceNow. Those records are what COMPASS holds in the Service Register, and what this site then displays.</p>
-        <h3 class="govuk-heading-m">What the site reads</h3>
+        <p class="govuk-body">New products and services are created as service offerings in ServiceNow. These records are what COMPASS holds in the Service Register, and what this product then displays.</p>
+        <h3 class="govuk-heading-m">What the product reads</h3>
         <ul class="govuk-list govuk-list--bullet">
-            <li>Active products and services on the standard register. Enterprise services are not included in that list.</li>
-            <li>One product or service, by its numeric id or its COMPASS id.</li>
-            <li>The FIPS taxonomy: channels, types, business areas, user groups, contact roles, and categorisation groups.</li>
+            <li>active products and services on the standard register. Enterprise services are not included in that list</li>
+            <li>one product or service, by its numeric id or its COMPASS id</li>
+            <li>the FIPS taxonomy: channels, types, business areas, user groups, contact roles, and categorisation groups</li>
         </ul>
         <p class="govuk-body">Search, categories, channels, types, business areas, and user groups are sent to COMPASS as filters. Phase is applied in this site after the products have been loaded, because phase is not a filter on that API.</p>
-        <p class="govuk-body">Successful reads are kept in memory on the web server for a short time, about two minutes by default. A change in COMPASS can take that long to appear here. Each running instance has its own cache.</p>
+        <p class="govuk-body">Successful reads are kept in memory on the web server for a short time, about 2 minutes by default. A change in COMPASS can take that long to appear here. Each running instance has its own cache.</p>
 
-        <h2 class="govuk-heading-l">What you can do here</h2>
+        <h2 class="govuk-heading-l">What you can use this product for</h2>
         <ul class="govuk-list govuk-list--bullet">
             <li>Search and filter the register of products and services.</li>
             <li>Open one entry to see its description, phase, contacts, and categories.</li>
@@ -59,8 +58,8 @@
         </ul>
 
         <h2 class="govuk-heading-l">How the parts fit together</h2>
+        <h3 class="govuk-heading-m">Systems this product uses</h3>
         <table class="govuk-table">
-            <caption class="govuk-table__caption govuk-table__caption--m">Systems this product uses</caption>
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th scope="col" class="govuk-table__header">System</th>
